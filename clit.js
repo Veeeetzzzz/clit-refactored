@@ -1,70 +1,66 @@
 /*
 clit - v1.0.6
 
-Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
+OG Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain via @ https://www.npmjs.com/package/clit
+Code refactored by @Veeeetzzzz
+
 
 Please refer to README.md to see what this is about.
 */
 
-var running = true;
-var lastMeasure = Date.now ();
-var accumulated = 0;
+let running = true;
+let lastMeasure = Date.now();
+let accumulated = 0;
 
-function log (log) {
-   // This ANSI sequence cleans the screen.
-   process.stdout.write ('\u001B[2J\u001B[0;0f');
-   process.stdout.write ('Timer started. Press CTRL+Z to pause/resume and CTRL+C to quit.\n');
-   process.stdout.write (log);
+function log(message) {
+  // This ANSI sequence cleans the screen.
+  process.stdout.write('\u001B[2J\u001B[0;0f');
+  process.stdout.write('Timer started. Press CTRL+Z to pause/resume and CTRL+C to quit.\n');
+  process.stdout.write(message);
 }
 
-function timeFormat (milliseconds) {
-    var x;
+function formatTime(milliseconds) {
+  const seconds = Math.floor((milliseconds / 1000) % 60);
+  const minutes = Math.floor((milliseconds / 1000 / 60) % 60);
+  const hours = Math.floor((milliseconds / 1000 / 60 / 60) % 24);
 
-    x = milliseconds / 1000;
-    var seconds = Math.floor (x % 60);
+  let output = `${padZero(minutes)}:${padZero(seconds)}`;
 
-    x /= 60;
-    var minutes = Math.floor (x % 60);
+  if (hours) {
+    output = `${hours}:${output}`;
+  }
 
-    x /= 60;
-    var hours = Math.floor (x % 24);
-
-    var output = '';
-
-    output = (minutes < 10 ? '0' + minutes : minutes) + ':' + (seconds < 10 ? '0' + seconds : seconds);
-
-    if (hours) {
-       output = hours + ':' + output;
-    }
-    return output;
+  return output;
 }
 
-function timerFunction () {
-   var now = Date.now ();
-   accumulated += now - lastMeasure;
-   lastMeasure = now;
-   log (timeFormat (accumulated));
+function padZero(value) {
+  return value < 10 ? `0${value}` : value;
 }
 
-var pause = setInterval (function () {}, 1000);
-var timer = setInterval (timerFunction, 1000);
+function updateTimer() {
+  const now = Date.now();
+  accumulated += now - lastMeasure;
+  lastMeasure = now;
+  log(formatTime(accumulated));
+}
 
-process.on ('SIGTSTP', function () {
-   if (running) {
-      timerFunction ();
-      clearInterval (timer);
-      running = false;
-      log ('Paused at ' + timeFormat (accumulated));
-   }
-   else {
-      lastMeasure = Date.now ();
-      timer = setInterval (timerFunction, 1000);
-      running = true;
-      log ('Resumed at ' + timeFormat (accumulated));
-   }
+const timer = setInterval(updateTimer, 1000);
+
+process.on('SIGTSTP', () => {
+  if (running) {
+    updateTimer();
+    clearInterval(timer);
+    running = false;
+    log(`Paused at ${formatTime(accumulated)}`);
+  } else {
+    lastMeasure = Date.now();
+    setInterval(updateTimer, 1000);
+    running = true;
+    log(`Resumed at ${formatTime(accumulated)}`);
+  }
 });
 
-process.on ('SIGINT', function () {
-   log ('Stopped after ' + timeFormat (accumulated) + '\n');
-   process.exit ();
+process.on('SIGINT', () => {
+  log(`Stopped after ${formatTime(accumulated)}\n`);
+  process.exit();
 });
