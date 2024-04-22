@@ -25,3 +25,5 @@ The complete source code is contained in `clit.js`. It is about 70 lines long.
 ## License
 
 clit is written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
+
+Refactored by [@Veeeetzzzz](https://twitter.com/Veeeetzzzz)
