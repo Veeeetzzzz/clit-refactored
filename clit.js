@@ -1,8 +1,16 @@
 /*
-clit - v1.0.6
 
 OG Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain via @ https://www.npmjs.com/package/clit
 Code refactored by @Veeeetzzzz
+
+
+Renamed some variables for better readability (timeFormat to formatTime, timerFunction to updateTimer).
+Removed the unused pause variable.
+Simplified the formatTime function by using Math.floor and modulo operator to calculate hours, minutes, and seconds.
+Extracted the logic for padding single-digit values into a separate padZero function.
+Replaced the else block in the SIGTSTP event handler with a simplified version that directly assigns the interval to the timer variable.
+Removed the unnecessary function wrapper in the SIGINT event handler.
+
 
 
 Please refer to README.md to see what this is about.
